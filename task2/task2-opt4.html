@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    
+    <!-- JQUERY module newest -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+    <!-- JQUERY module suggested by table2csv-->
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script> -->
+    <!-- XLSX module -->
+    <!-- <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.2/xlsx.full.min.js"></script>
+    <!-- table2csv module -->
+    <script src="./table2csv.min.js"></script>
+    <!-- Module -->
+    <script src="https://unpkg.com/read-excel-file@5.x/bundle/read-excel-file.min.js"></script>
+
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+        table, th, td {
+            border-collapse: collapse;
+            border: 1px solid black;
+            padding: 10px;
+        }
+        tr:nth-child(even) {
+            background-color: #dddddd;
+        }
+        th {
+            background-color: #5a5a5a;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <!-- PHASE 1 - Excel to JSON -->
+    <!-- Reference: https://www.youtube.com/watch?v=IcxJUJXRPGw -->
+    <h4>Upload the name list here:</h4>
+    <!-- <input type="file" id="input"> -->
+    <input type="file" id="input" accept=".xls,.xlsx,.csv">
+    <!-- <button id="buttonToJson">Proceed!</button> -->
+
+    <textarea name="json-data" id="json-data" rows="10" style="width: 100%;"></textarea>
+    <br><br>
+    <button id="dl-json">Export JSON file</button>
+
+    <button onclick="exportFinal(dataArray)" id="downloadResult">Export to Excel</button>
+
+    <table class="table table-striped">
+        <tr  class="bg-info">
+            <th>NAME</th>
+            <th>LINK</th>
+        </tr>
+    
+        <tbody id="myTable">
+            
+        </tbody>
+    </table>
+
+    <script>
+        // let options = {
+        //     "separator": ",",
+        //     "filename": "Company Clickable-Result.csv"
+        // }
+        // $('#downloadResult').on('click', function() {
+        //     $('#tbl-data').table2csv(options);
+        //     $('data-table').XLSX.writeFile(newWB,'New data file.xlsx')
+        // })
+    </script>
+    <script>
+        // INPUT EXCEL TO JSON
+        let input = document.getElementById('input');
+        input.addEventListener('change', function() {
+            readXlsxFile(input.files[0]).then(function(data) {
+                let i = 0;
+                let headers = [];
+                let json_object = [];
+
+                data.map((row, index)=> {
+                    if (i == 0) {
+                        headers = row;
+                    } //Inputting KEY
+
+                    if (i > 0) {
+                        let temp = {};
+                        for(let x = 0; x < row.length; x++) {
+                            temp[headers[x]] =row[x];
+                        }
+                        json_object.push(temp);
+                    } //Inputting VALUE
+                    i++;
+                });
+            
+                // document.getElementById('json-data').value = JSON.stringify(json_object, null, 2);
+                // console.log(json_object);
+                
+                let dataArray = [];
+                for (const x in json_object) {
+                    dataArray = {...json_object};
+                    let Gquery = dataArray[x].NAME.replaceAll(' ', '+');;
+                    let link = 'https://www.google.com/search?q='+ Gquery +'&source=lnms&tbm=isch';
+                    json_object[x].link = link;
+                }
+                document.getElementById('json-data').value = JSON.stringify(dataArray, null, 2);
+                console.log(dataArray);
+                console.log(dataArray[0].NAME.length);
+                buildTable(dataArray)
+
+                // let dataArray = [json_object];
+                // function buildTable(data) {
+                //     const table = document.getElementById('tbl-data');
+                //     let nameLink = '';
+                //     for (const x in data) {
+                //         nameLink += data[x].NAME + ', ';
+                //         // const row = "<tr>
+                //         //                 <td>${data}</td>
+                //         //             </tr>";
+                //     console.log(nameLink);
+                //     }
+                // }
+                // buildTable(dataArray);
+
+                // Export JSON result to Excel using xlsx
+                function exportFinal(jsonObject) {
+                    filename='companies_clickable.xlsx';
+                    jsonObjectt = JSON.parse(jsonObject);
+                    let ws = XLSX.utils.json_to_sheet(jsonObjectt);
+                    let wb = XLSX.utils.book_new();
+                    XLSX.utils.book_append_sheet(wb, ws, "People");
+                    XLSX.writeFile(wb,filename);
+                }
+
+                // MAKE HTML TABLE BASED ON JSON OBJECT
+                // let myArray = dataArray;
+            
+                // buildTable(myArray)
+
+                function buildTable(data){
+                    let table = document.getElementById('myTable')
+                    let keyName = '';
+                    for (const i in dataArray){
+                        keyName += i + ', ';
+                        let row = `<tr>
+                                        <td>${data[i].NAME}</td>
+                                        <td><a href="${data[i].NAME}" target="_blank">${data[i].link}</a></td>
+                                    </tr>`
+                        table.innerHTML += row
+                        console.log(keyName);
+                    }
+                }
+
+            });
+        })
+
+
+        
+        document.getElementById('dl-json').onclick = function() {
+            let json_string = document.getElementById('json-data').value;
+            downloadObjectAsJson(json_string, 'json_output'); // output filename, json data to file
+        };
+
+        function downloadObjectAsJson(str, filename) {
+            let data_string = "data:text/json;charset=utf-8," + encodeURIComponent(str);
+            let anchor = document.createElement('a');
+            anchor.setAttribute('href', data_string);
+            anchor.setAttribute('download', filename + '.json');
+            document.body.appendChild(anchor);  //required for firefox
+            anchor.click();
+            anchor.remove();
+        }
+        // https://www.youtube.com/watch?v=5UkeEmG4hlw
+    </script>
+    <script>
+
+    </script>
+</body>
+</html>
