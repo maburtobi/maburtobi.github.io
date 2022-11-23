@@ -63,14 +63,16 @@
     <section class="py-5 text-center container-fluid bg-primary bg-gradient">
         <div class="row py-lg-5">
             <div class="col-lg-6 col-md-8 mx-auto">
-                <h1 class="fw-light">Screening C Tools</h1>
-                <p class="lead">Please upload the file contains namelist below..</p>
-                <!-- Reference: https://www.youtube.com/watch?v=IcxJUJXRPGw -->
-                <input type="file" id="input" accept=".xls,.xlsx,.csv,.txt">
-                <!-- <button id="buttonToJson">Proceed!</button> -->
+                <h1 class="fw-light">Screening Tools (Task 2)</h1>
+                <div class="mx-auto">
+                    <label for="input" class="form-label lead">Please upload the file contains namelist below..</label>
+                    <input id="input" class="form-control border border-2 border-success" type="file" accept=".xls,.xlsx,.csv">
+                </div>
 
                 <p name="json-data" id="json-data" rows="10" style="width: 100%;"></p>
-                <div id="exportBtn"></div>
+                <div id="exportBtn">
+                    <a type="button" class="btn btn-outline-light" href="./Template-input_data.xlsx">Download input template</a>
+                </div>
                 <!-- <button id="dl-json">Export JSON file</button>
                 <button onclick="exportFinal(dataArray)" id="downloadResult">Export to Excel</button>
                 <button type="button" class="btn btn-outline-dark" id="btnTable" onclick="exportTable('xlsx', 'output_excel')">Export to xlsx</button> -->
@@ -148,9 +150,9 @@
                 // MAKE EXPORT BUTTONS
                 const mainBtns = document.getElementById('exportBtn');
                 mainBtns.innerHTML += `
-                <button id="dl-json" class="btn btn-outline-dark">Export JSON file</button>
-                <button id="downloadResult" class="btn btn-outline-dark" onclick="exportFinal(dataArray)">Export to Excel</button>
-                <button id="btnTable" class="btn btn-outline-dark" onclick="exportTable('xlsx', 'output_excel')">Export to xlsx</button>
+                <button id="dl-json" class="btn btn-outline-dark">Export Result to JSON</button>
+                <!-- <button id="downloadResult" class="btn btn-outline-dark" onclick="exportFinal(dataArray)">Export to Excel</button> -->
+                <button id="btnTable" class="btn btn-outline-dark" onclick="exportTable('xlsx', 'output_excel')">Export Result to Excel</button>
                 `;
 
                 // JSON to HTML TABLE
@@ -159,12 +161,20 @@
                 function buildTable(data){
                     let table = document.getElementById('tbl-data');
                     table.innerHTML += `<th>NAME</th>
-                                        <th>LINK</th>`
+                                        <th>LINK</th>
+                                        <th>Click if checked</th>
+                                        <th>Yes?</th>
+                                       `
                     let keyName = '';
                     for (const i in dataArray){
                         keyName += i + ', ';
                         let row = ` <td>${data[i].NAME}</td>
-                                    <td><a href="${data[i].link}", target="_blank">${data[i].link}</a></td>`
+                                    <td><a href="${data[i].link}", target="_blank">${data[i].link}</a></td>
+                                    <td><input type="checkbox" class="btn-check" id="btn-check-${[i]}" autocomplete="off">
+                                    <label class="btn btn-outline-success" for="btn-check-${[i]}">Checked</label></td>
+                                    <td><input type="checkbox" class="btn-check" id="btn-fit-${[i]}" autocomplete="off">
+                                    <label class="btn btn-outline-success" for="btn-fit-${[i]}">OK</label></td>
+                                  `
                         table.innerHTML += row
                         // console.log('keyName' + keyName);
                     }
