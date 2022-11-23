@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>task2</title>
     
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <!-- JQUERY module newest -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
     <!-- JQUERY module suggested by table2csv-->
@@ -17,12 +19,13 @@
     <script src="./table2csv.min.js"></script>
     <!-- Module -->
     <script src="https://unpkg.com/read-excel-file@5.x/bundle/read-excel-file.min.js"></script>
+    
 
     <style>
         body {
             font-family: sans-serif;
         }
-        table, th, td {
+        /* table, th, td {
             border-collapse: collapse;
             border: 1px solid black;
             padding: 10px;
@@ -33,44 +36,62 @@
         th {
             background-color: #5a5a5a;
             color: white;
-        }
+        } */
     </style>
 </head>
 <body>
-    <!-- PHASE 1 - Excel to JSON -->
-    <!-- Reference: https://www.youtube.com/watch?v=IcxJUJXRPGw -->
-    <h4>Upload the name list here:</h4>
-    <!-- <input type="file" id="input"> -->
-    <input type="file" id="input" accept=".xls,.xlsx,.csv">
-    <!-- <button id="buttonToJson">Proceed!</button> -->
-
-    <textarea name="json-data" id="json-data" rows="10" style="width: 100%;"></textarea>
-    <br><br>
-    <button id="dl-json">Export JSON file</button>
-
-    <button onclick="exportFinal(dataArray)" id="downloadResult">Export to Excel</button>
-
-    <table class="table table-striped">
-        <tr  class="bg-info">
-            <th>NAME</th>
-            <th>LINK</th>
-        </tr>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Task 2 - internship</a>
+            <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsExample07" aria-controls="navbarsExample07" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button> -->
     
-        <tbody id="myTable">
-            
-        </tbody>
-    </table>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Help</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+      
+    <section class="py-5 text-center container-fluid bg-primary bg-gradient">
+        <div class="row py-lg-5">
+            <div class="col-lg-6 col-md-8 mx-auto">
+                <h1 class="fw-light">Screening C Tools</h1>
+                <p class="lead">Please upload the file contains namelist below..</p>
+                <!-- Reference: https://www.youtube.com/watch?v=IcxJUJXRPGw -->
+                <input type="file" id="input" accept=".xls,.xlsx,.csv,.txt">
+                <!-- <button id="buttonToJson">Proceed!</button> -->
 
-    <script>
-        // let options = {
-        //     "separator": ",",
-        //     "filename": "Company Clickable-Result.csv"
-        // }
-        // $('#downloadResult').on('click', function() {
-        //     $('#tbl-data').table2csv(options);
-        //     $('data-table').XLSX.writeFile(newWB,'New data file.xlsx')
-        // })
-    </script>
+                <p name="json-data" id="json-data" rows="10" style="width: 100%;"></p>
+                <div id="exportBtn"></div>
+                <!-- <button id="dl-json">Export JSON file</button>
+                <button onclick="exportFinal(dataArray)" id="downloadResult">Export to Excel</button>
+                <button type="button" class="btn btn-outline-dark" id="btnTable" onclick="exportTable('xlsx', 'output_excel')">Export to xlsx</button> -->
+            </div>
+        </div>
+    </section>
+
+    <div class="container-fluid">
+        <table id="tbl-data" class="table table-dark table-striped table-hover"></table>
+    </div>
+
+    <!-- <script>
+        let options = {
+            "separator": ",",
+            "filename": "Company Clickable-Result.csv"
+        }
+        $('#downloadResult').on('click', function() {
+            $('#tbl-data').table2csv(options);
+            $('data-table').XLSX.writeFile(newWB,'New data file.xlsx')
+        })
+    </script> -->
     <script>
         // INPUT EXCEL TO JSON
         let input = document.getElementById('input');
@@ -124,39 +145,51 @@
                 // }
                 // buildTable(dataArray);
 
-                // Export JSON result to Excel using xlsx
-                function exportFinal(jsonObject) {
-                    filename='companies_clickable.xlsx';
-                    jsonObjectt = JSON.parse(jsonObject);
-                    let ws = XLSX.utils.json_to_sheet(jsonObjectt);
-                    let wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, "People");
-                    XLSX.writeFile(wb,filename);
-                }
+                // MAKE EXPORT BUTTONS
+                const mainBtns = document.getElementById('exportBtn');
+                mainBtns.innerHTML += `
+                <button id="dl-json" class="btn btn-outline-dark">Export JSON file</button>
+                <button id="downloadResult" class="btn btn-outline-dark" onclick="exportFinal(dataArray)">Export to Excel</button>
+                <button id="btnTable" class="btn btn-outline-dark" onclick="exportTable('xlsx', 'output_excel')">Export to xlsx</button>
+                `;
 
-                // MAKE HTML TABLE BASED ON JSON OBJECT
+                // JSON to HTML TABLE
                 // let myArray = dataArray;
-            
                 // buildTable(myArray)
-
                 function buildTable(data){
-                    let table = document.getElementById('myTable')
+                    let table = document.getElementById('tbl-data');
+                    table.innerHTML += `<th>NAME</th>
+                                        <th>LINK</th>`
                     let keyName = '';
                     for (const i in dataArray){
                         keyName += i + ', ';
-                        let row = `<tr>
-                                        <td>${data[i].NAME}</td>
-                                        <td><a href="${data[i].link}", target="_blank">${data[i].link}</a></td>
-                                    </tr>`
+                        let row = ` <td>${data[i].NAME}</td>
+                                    <td><a href="${data[i].link}", target="_blank">${data[i].link}</a></td>`
                         table.innerHTML += row
-                        console.log(keyName);
+                        // console.log('keyName' + keyName);
                     }
                 }
 
             });
         })
 
+        // Export JSON result to Excel using xlsx (NOT work)
+        function exportFinal(jsonObject) {
+            filename='companies_clickable.xlsx';
+            jsonObjectt = JSON.parse(jsonObject);
+            let ws = XLSX.utils.json_to_sheet(jsonObjectt);
+            let wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "People");
+            XLSX.writeFile(wb,filename);
+        }
 
+        // Datatable to excel (WORK)
+        function exportTable(fileExtension, fileName) {
+            let elt = document.getElementById('tbl-data');
+            let wb = XLSX.utils.table_to_book(elt, {sheet: "sheet1"});
+            return XLSX.writeFile(wb, fileName + "." + fileExtension || ('MySheetName' + (fileExtension || 'xlsx')));
+        }
+        // END of Datatable
         
         document.getElementById('dl-json').onclick = function() {
             let json_string = document.getElementById('json-data').value;
@@ -174,8 +207,8 @@
         }
         // https://www.youtube.com/watch?v=5UkeEmG4hlw
     </script>
-    <script>
 
-    </script>
+    <!-- Script modules -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
 </body>
 </html>
