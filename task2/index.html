@@ -162,18 +162,12 @@
                     let table = document.getElementById('tbl-data');
                     table.innerHTML += `<th>NAME</th>
                                         <th>LINK</th>
-                                        <th>Click if checked</th>
-                                        <th>Yes?</th>
                                        `
                     let keyName = '';
                     for (const i in dataArray){
                         keyName += i + ', ';
                         let row = ` <td>${data[i].NAME}</td>
                                     <td><a href="${data[i].link}", target="_blank">${data[i].link}</a></td>
-                                    <td><input type="checkbox" class="btn-check" id="btn-check-${[i]}" autocomplete="off">
-                                    <label class="btn btn-outline-success" for="btn-check-${[i]}">Checked</label></td>
-                                    <td><input type="checkbox" class="btn-check" id="btn-fit-${[i]}" autocomplete="off">
-                                    <label class="btn btn-outline-success" for="btn-fit-${[i]}">OK</label></td>
                                   `
                         table.innerHTML += row
                         // console.log('keyName' + keyName);
